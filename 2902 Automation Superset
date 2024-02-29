@@ -1,1 +1,797 @@
+from google.colab import drive
+drive.mount('/content/drive')
+
+import pandas as pd
+
+summary_cases = pd.read_excel('/content/drive/Shareddrives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx', sheet_name='Summary_Cases')
+summary_cases
+
+aging = pd.read_excel('/content/drive/Shareddrives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx', sheet_name='Aging_Cases')
+aging
+
+first = pd.read_excel('/content/drive/Shareddrives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx', sheet_name='First_Update')
+first
+
+lookup = pd.read_excel('/content/drive/Shareddrives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx', sheet_name='Lookup_HC')
+lookup
+
+import pandas as pd
+
+productivity = pd.read_excel('/content/drive/Shareddrives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx', sheet_name='Productivity')
+productivity
+
+simplesat = pd.read_excel('/content/drive/Shareddrives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx', sheet_name='Lookup_Simplesat')
+simplesat
+
+SUMMARY CASES TO AFI DATA JOB FOR DONE (Incoming_Cases)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1pZnjWzvZgIXfUOFDYHvmZUGn7MyVDaCxvtiAvmR8H40'
+worksheet = 'Incoming_Cases'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6,7,8,9,10,11,12]  # Replace with the column indices you want to select
+incoming = pd.read_excel(excel_file_path, sheet_name='Summary_Cases', usecols=selected_columns)
+
+# Get the column names from the DataFrame
+header = list(incoming.columns)
+
+# Replace NaN values with blank
+incoming.fillna('', inplace=True)
+
+# Convert Date to String
+incoming['Ticket Creating Time'] = incoming['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+incoming['Update Time'] = incoming['Update Time'].dt.strftime('%Y-%m-%d')
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_incoming = [header] + incoming.values.tolist()
+
+range_name_summary = 'Incoming_Cases!A1:M' + str(len(values_incoming))
+range_name_clear_summary = 'Incoming_Cases!A1:M'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_incoming
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+**SUMMARY CASES TO NEW REPORT TIER 2 (Incoming__Cases)**
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '17ykpS6sVZ2A_ydAznPo_-NprC1JmUZkYk8s1EgpF3DY'
+worksheet = 'Incoming_Cases'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6,7,8,9,10,11,12]  # Replace with the column indices you want to select
+incoming = pd.read_excel(excel_file_path, sheet_name='Summary_Cases', usecols=selected_columns)
+
+# Get the column names from the DataFrame
+header = list(incoming.columns)
+
+# Replace NaN values with blank
+incoming.fillna('', inplace=True)
+
+# Convert Date to String
+incoming['Ticket Creating Time'] = incoming['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+incoming['Update Time'] = incoming['Update Time'].dt.strftime('%Y-%m-%d')
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_incoming = [header] + incoming.values.tolist()
+
+range_name_summary = 'Incoming_Cases!A1:M' + str(len(values_incoming))
+range_name_clear_summary = 'Incoming_Cases!A1:M'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_incoming
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+SUMMARY CASES TO NEW REPORT TIER 1 (Tier_2)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1xa7RO9Soi8K90NlYjsIka_iRmq5hS8EPUcYOHSjTaUI'
+worksheet = 'Tier_2'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6,7,8,9,10,11,12]  # Replace with the column indices you want to select
+incoming = pd.read_excel(excel_file_path, sheet_name='Summary_Cases', usecols=selected_columns)
+
+# Get the column names from the DataFrame
+header = list(incoming.columns)
+
+# Replace NaN values with blank
+incoming.fillna('', inplace=True)
+
+# Convert Date to String
+incoming['Ticket Creating Time'] = incoming['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+incoming['Update Time'] = incoming['Update Time'].dt.strftime('%Y-%m-%d')
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_incoming = [header] + incoming.values.tolist()
+
+range_name_summary = 'Tier_2!A1:M' + str(len(values_incoming))
+range_name_clear_summary = 'Tier_2!A1:M'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_incoming
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+SUMMARY CASES TO BOD (Tier_2)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '13NiTkT046MC6Rm3ymJg_j0qfyOQ9Qhd3mXaUavUIbeI'
+worksheet = 'Tier_2'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6,7,8,9,10,11,12]  # Replace with the column indices you want to select
+incoming = pd.read_excel(excel_file_path, sheet_name='Summary_Cases', usecols=selected_columns)
+
+# Get the column names from the DataFrame
+header = list(incoming.columns)
+
+# Replace NaN values with blank
+incoming.fillna('', inplace=True)
+
+# Convert Date to String
+incoming['Ticket Creating Time'] = incoming['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+incoming['Update Time'] = incoming['Update Time'].dt.strftime('%Y-%m-%d')
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_incoming = [header] + incoming.values.tolist()
+
+range_name_summary = 'Tier_2!B1:N' + str(len(values_incoming))
+range_name_clear_summary = 'Tier_2!B1:N'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_incoming
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+AGING CASE TO AFI DATA JOB FOR DONE (Aging_Cases)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1pZnjWzvZgIXfUOFDYHvmZUGn7MyVDaCxvtiAvmR8H40'
+worksheet = 'Aging_Cases'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]  # Replace with the column indices you want to select
+aging = pd.read_excel(excel_file_path, sheet_name='Aging_Cases', usecols=selected_columns)
+aging = aging.replace({np.nan: '', 'NaT': ''})
+# Get the column names from the DataFrame
+header = list(aging.columns)
+
+
+
+# Convert Date to String
+aging['Ticket Creating Time'] = aging['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+aging['Update Time'] = aging['Update Time'].dt.strftime('%Y-%m-%d')
+aging['first_update_time'] = aging['first_update_time'].dt.strftime('%Y-%m-%d')
+
+# Replace NaN values with empty string
+aging = aging.replace({np.nan: '', pd.NaT: ''})
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_aging = [header] + aging.values.tolist()
+
+range_name_summary = 'Aging_Cases!A1:R' + str(len(values_aging))
+range_name_clear_summary = 'Aging_Cases!A1:R'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_aging
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+FIRST UPDATE TO NEW REPORT TIER 2 (First_Update)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '17ykpS6sVZ2A_ydAznPo_-NprC1JmUZkYk8s1EgpF3DY'
+worksheet = 'First_Update'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Replace with the column indices you want to select
+first = pd.read_excel(excel_file_path, sheet_name='First_Update', usecols=selected_columns)
+first = first.replace({np.nan: '', 'NaT': ''})
+# Get the column names from the DataFrame
+header = list(first.columns)
+
+
+
+# Convert Date to String
+first['Ticket Creating Time'] = first['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+first['first_update_time'] = first['first_update_time'].dt.strftime('%Y-%m-%d')
+
+# Replace NaN values with empty string
+first = first.replace({np.nan: '', pd.NaT: ''})
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_first = [header] + first.values.tolist()
+
+range_name_summary = 'first_update!A1:J' + str(len(values_first))
+range_name_clear_summary = 'first_update!A1:J'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_first
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+LOOKUP HC TO NEW REKAP HARD COMPLAINT HOTLINE (AFI_Tier2)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1OPAhEqqXS1cG54k0Cvu_Mv7OlIFBAvBdjc3q6b_jtgQ'
+worksheet = 'AFI_Tier2'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6]  # Replace with the column indices you want to select
+lookup = pd.read_excel(excel_file_path, sheet_name='Lookup_HC', usecols=selected_columns)
+lookup = lookup.replace({np.nan: '', 'NaT': ''})
+# Get the column names from the DataFrame
+header = list(lookup.columns)
+
+
+
+# Convert Date to String
+lookup['Ticket Creating Time'] = lookup['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+lookup['Update Time'] = lookup['Update Time'].dt.strftime('%Y-%m-%d')
+lookup['first_update_time'] = lookup['first_update_time'].dt.strftime('%Y-%m-%d')
+
+# Replace NaN values with empty string
+lookup = lookup.replace({np.nan: '', pd.NaT: ''})
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_lookup = [header] + lookup.values.tolist()
+
+range_name_summary = 'AFI_Tier2!A1:G' + str(len(values_lookup))
+range_name_clear_summary = 'AFI_Tier2!A1:G'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_lookup
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+LOOKUP HC TO NEW REKAP HARD COMPLAINT LIVECHAT (AFI_Tier2)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+from google.colab import drive
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1DvQ-W08RqfxDLkbPBRZSK3tpefIQeu8oDmB_WCeBd3I'
+worksheet = 'AFI_Tier2'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+data = spreadsheet.get_all_values()
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6]  # Replace with the column indices you want to select
+lookup = pd.read_excel(excel_file_path, sheet_name='Lookup_HC', usecols=selected_columns)
+lookup = lookup.replace({np.nan: '', 'NaT': ''})
+# Get the column names from the DataFrame
+header = list(lookup.columns)
+
+
+
+# Convert Date to String
+lookup['Ticket Creating Time'] = lookup['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+lookup['Update Time'] = lookup['Update Time'].dt.strftime('%Y-%m-%d')
+lookup['first_update_time'] = lookup['first_update_time'].dt.strftime('%Y-%m-%d')
+
+# Replace NaN values with empty string
+lookup = lookup.replace({np.nan: '', pd.NaT: ''})
+
+# Convert DataFrame to a list of lists and add the header at row 1
+values_lookup = [header] + lookup.values.tolist()
+
+range_name_summary = 'AFI_Tier2!A1:G' + str(len(values_lookup))
+range_name_clear_summary = 'AFI_Tier2!A1:G'
+
+service = build('sheets', 'v4', credentials=creds)
+# clear existing data in sheet
+clear_values_request_body = {}
+service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_name_clear_summary, body=clear_values_request_body).execute()
+
+# paste data into sheet
+values = values_lookup
+body = {
+    'values': values
+}
+result = service.spreadsheets().values().update(
+    spreadsheetId=spreadsheet_id, range=range_name_summary,
+    valueInputOption='USER_ENTERED', body=body).execute()
+print(f'{result.get("updatedCells")} cells.')
+
+
+**ADDING DATA KPI CS Tier 2 AFI**
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1ereNxVOB4Dw1NYaEcBff2x6yOfDLm5fgdL8J5-bSXC4'
+worksheet = 'Closed_Cases'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Replace with the column indices you want to select
+productivity = pd.read_excel(excel_file_path, sheet_name='Productivity', usecols=selected_columns)
+
+# Replace NaN values with blank
+productivity.fillna('', inplace=True)
+
+# Filter data based on 'Update Time' column between Jan 1, 2024 and Feb 3, 2024
+start_date = datetime(2024, 2, 28)
+end_date = datetime(2024, 2, 28)
+filtered_productivity = productivity[(productivity['Update Time'] >= start_date) & (productivity['Update Time'] <= end_date)]
+
+# Convert Date to String
+filtered_productivity['Update Time'] = filtered_productivity['Update Time'].dt.strftime('%Y-%m-%d')
+# filtered_incoming['Update Time'] = filtered_incoming['Update Time'].dt.strftime('%Y-%m-%d')
+
+# Convert DataFrame to a list of lists
+values_productivity = filtered_productivity.values.tolist()
+
+# Define range for updating in the Google Sheet
+next_row = len(spreadsheet.get_all_values()) + 1
+range_name = f'Closed_Cases!A{next_row}'
+
+# Update the Google Sheet with the filtered data
+set_with_dataframe(spreadsheet, filtered_productivity, include_index=False, include_column_header=False, row=next_row, resize=False)
+
+print("Data has been added successfully.")
+
+
+**ADDING DATA KPI CS Tier 2 Jogja**
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1Kit4-7rGR6hrOMwUABDNOsmdSu9lhJcRoN1RcqldclQ'
+worksheet = 'Tier2_AFI'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Replace with the column indices you want to select
+productivity = pd.read_excel(excel_file_path, sheet_name='Productivity', usecols=selected_columns)
+
+# Replace NaN values with blank
+productivity.fillna('', inplace=True)
+
+# Filter data based on 'Update Time' column between Jan 1, 2024 and Feb 3, 2024
+start_date = datetime(2024, 2, 28)
+end_date = datetime(2024, 2, 28)
+filtered_productivity = productivity[(productivity['Update Time'] >= start_date) & (productivity['Update Time'] <= end_date)]
+
+# Convert Date to String
+filtered_productivity['Update Time'] = filtered_productivity['Update Time'].dt.strftime('%Y-%m-%d')
+# filtered_incoming['Update Time'] = filtered_incoming['Update Time'].dt.strftime('%Y-%m-%d')
+
+# Convert DataFrame to a list of lists
+values_productivity = filtered_productivity.values.tolist()
+
+# Define range for updating in the Google Sheet
+next_row = len(spreadsheet.get_all_values()) + 1
+range_name = f'Tier2_AFI!A{next_row}'
+
+# Update the Google Sheet with the filtered data
+set_with_dataframe(spreadsheet, filtered_productivity, include_index=False, include_column_header=False, row=next_row, resize=False)
+
+print("Data has been added successfully.")
+
+
+**ADDING MASTER DATA**
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+from gspread_dataframe import set_with_dataframe
+from google.oauth2.service_account import Credentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+import gspread
+from google.auth import default
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# 1. Authorizing google colab
+auth.authenticate_user()
+
+# 2. credentials for google sheets
+creds, _ = default()
+
+# 3. authotizing the connection
+gc = gspread.authorize(creds)
+
+# Open the Google Sheet by its ID
+spreadsheet_id = '1Cx7Pkl-fJSeYL_ajtZ77eORXL-j5sleUFSMLKng02Lc'
+worksheet = 'Closed_Cases'
+spreadsheet = gc.open_by_key(spreadsheet_id).worksheet(worksheet)
+
+# Load data from Excel file into a pandas DataFrame, selecting only columns A to G
+excel_file_path = '/content/drive/Shared drives/Python/Automation Superset/V.2.1 Manual Tools - Tier 2 AFI (Release).xlsx'
+selected_columns = [0, 1, 2, 3, 4, 5, 6, 7]  # Replace with the column indices you want to select
+simplesat = pd.read_excel(excel_file_path, sheet_name='Lookup_Simplesat', usecols=selected_columns)
+
+# Replace NaN values with blank
+simplesat.fillna('', inplace=True)
+
+# Filter data based on 'Update Time' column between Jan 1, 2024 and Feb 3, 2024
+start_date = datetime(2024, 2, 28)
+end_date = datetime(2024, 2, 28)
+filtered_simplesat = simplesat[(simplesat['Update Time'] >= start_date) & (simplesat['Update Time'] <= end_date)]
+
+# Convert Date to String
+filtered_simplesat['Update Time'] = filtered_simplesat['Update Time'].dt.strftime('%Y-%m-%d')
+filtered_simplesat['Ticket Creating Time'] = filtered_simplesat['Ticket Creating Time'].dt.strftime('%Y-%m-%d')
+
+# Convert DataFrame to a list of lists
+values_simplesat = filtered_simplesat.values.tolist()
+
+# Define range for updating in the Google Sheet
+next_row = len(spreadsheet.get_all_values()) + 1
+range_name = f'Closed_Cases!A{next_row}'
+
+# Update the Google Sheet with the filtered data
+set_with_dataframe(spreadsheet, filtered_simplesat, include_index=False, include_column_header=False, row=next_row, resize=False)
+
+print("Data has been added successfully.")
 
